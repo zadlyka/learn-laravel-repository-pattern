@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Policies;
+namespace App\Domain\Role\Policies;
 
-use App\Models\Role;
 use App\Models\User;
+use App\Domain\Role\Models\Role;
 use Illuminate\Auth\Access\Response;
 
 class RolePolicy

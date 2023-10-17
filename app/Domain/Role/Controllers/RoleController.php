@@ -1,22 +1,32 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Domain\Role\Controllers;
 
-use App\Models\Role;
+use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use App\Http\Resources\RoleResource;
-use App\Http\Resources\RoleCollection;
-use App\Http\Requests\StoreRoleRequest;
-use App\Http\Requests\UpdateRoleRequest;
+use App\Domain\Role\Models\Role;
+use App\Http\Controllers\Controller;
+use App\Domain\Role\Services\RoleService;
+use App\Domain\Role\Resources\RoleResource;
+use App\Domain\Role\Resources\RoleCollection;
+use App\Domain\Role\Requests\StoreRoleRequest;
+use App\Domain\Role\Requests\UpdateRoleRequest;
 
 class RoleController extends Controller
 {
+    protected $roleService;
+
+    public function __construct(RoleService $roleService)
+    {
+        $this->roleService = $roleService;
+    }
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $roles = Role::paginate();
+        
+        $roles = $this->roleService->findAll($request->all());
         return new RoleCollection($roles, Response::HTTP_OK, 'List data.');
     }
 
@@ -25,7 +35,7 @@ class RoleController extends Controller
      */
     public function store(StoreRoleRequest $request)
     {
-        $role = Role::create($request->all());
+        $role = $this->roleService->create($request->all());
         return new RoleResource($role, Response::HTTP_CREATED, 'Created data.');
     }
 
@@ -34,6 +44,7 @@ class RoleController extends Controller
      */
     public function show(Role $role)
     {
+        $role = $this->roleService->findOne($role->id);
         return new RoleResource($role, Response::HTTP_OK, 'Detail data.');
     }
 
@@ -42,7 +53,7 @@ class RoleController extends Controller
      */
     public function update(UpdateRoleRequest $request, Role $role)
     {
-        $role->update($request->all());
+        $role = $this->roleService->update($role->id, $request->all());
         return new RoleResource($role, Response::HTTP_OK, 'Updated data.');
     }
 
@@ -51,7 +62,7 @@ class RoleController extends Controller
      */
     public function destroy(Role $role)
     {
-        $role->delete();
+        $this->roleService->delete($role->id);
         return new RoleResource(null, Response::HTTP_OK, 'Deleted data.');
     }
 }
